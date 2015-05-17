@@ -1,0 +1,117 @@
+# Author : VK
+# Date : May 15 2015
+
+PEER ASSESSMENT 1
+=================
+
+Loading and Processing Data
+
+
+data = read.csv("activity.csv", header = TRUE)
+
+1.1 Total number of steps taken.
+
+
+total.steps.per.day = sapply(split(data$steps, data$date), sum)
+
+1.2 Plotting Histogram 
+
+hist(total.steps.per.day, col = "pink", main = "Number of steps", ylim = c(0, 
+    40))
+    
+1.3 Calculating Mean and Median of total number of steps taken per day .
+
+
+print(mean(total.steps.per.day, na.rm = TRUE), digits = 7)
+print(median(total.steps.per.day, na.rm = TRUE), digits = 7)
+
+2.1 Plotting average number of steps taken across all days.
+
+
+avg.steps.per.interval = sapply(split(data$steps, data$interval), mean, na.rm = TRUE)
+plot(avg.steps.per.interval,col = "purple" ,type = "l", , xlab = "Interval", ylab = "Number of steps")
+
+2.2 Maximum number of steps across a 5 min interval.
+
+
+names(avg.steps.per.interval)[avg.steps.per.interval == max(avg.steps.per.interval)]
+
+3.1 Calculating number of missing values in the intial dataset.
+
+
+sum(is.na(data$steps))
+
+3.2 Filling in the missing values with the mean value for that 5 min interval and creating new data set.
+
+
+data.filled = data
+for (i in 1:nrow(data.filled)) {
+    if (is.na(data.filled[i, "steps"])) {
+        interval = as.character(data.filled[i, "interval"])
+        data.filled[i, "steps"] = avg.steps.per.interval[interval]
+    }
+}
+
+#Missing values in the dataset
+
+sum(is.na(data.filled$steps))
+
+3.3 Plotting a histogram for the new data and calculaing Mean and Median.
+
+
+total.steps.per.day.filled = sapply(split(data.filled$steps, data.filled$date), 
+    sum)
+hist(total.steps.per.day.filled, col = "orange", ylim = c(0, 40), main = "Number of steps - missing values replaced")
+
+print(mean(total.steps.per.day.filled, na.rm = TRUE), digits = 7)
+
+print(median(total.steps.per.day.filled, na.rm = TRUE), digits = 7)
+
+#Conclusion from filling in the missing data :
+
+
+1.No change in mean value 
+
+2.The median value has changed and is no longer an integer because to replace the missing values we used the average number of steps per intervals and these aren't always integers.
+
+3.There is an increase in the  number of steps after filling in the missing Values.
+
+
+4.1 Creating new variables called weekday and weekend.
+
+
+data.filled$weekday = weekdays(as.Date(data.filled$date, format = "%Y-%m-%d"))
+data.filled$weekday.type = factor(ifelse(data.filled$weekday == "Sunday" | data.filled$weekday == 
+    "Saturday", "weekend", "weekday"), levels = c("weekday", "weekend"))
+    
+    
+#4.2 Calculating Avg no of steps by weekday and weekend.
+
+data.filled.weekdays = data.filled[data.filled$weekday.type == "weekday", ]
+data.filled.weekend = data.filled[data.filled$weekday.type == "weekend", ]
+avg.steps.per.interval.weekdays = sapply(split(data.filled.weekdays$steps, data.filled.weekdays$interval), 
+    mean)
+avg.steps.per.interval.weekend = sapply(split(data.filled.weekend$steps, data.filled.weekend$interval), 
+    mean)
+
+4.3 Scatterplot for weekday and weekend.
+
+DoPlot = function() {
+    par(mfrow = c(2, 1), mar = c(4, 5, 2, 2))
+    plot(avg.steps.per.interval.weekend,col = "green",type = "l", yaxt = "n", ylim = c(0, 
+        250), xlim = c(0, 300), main = "weekend", ylab = "", xlab = "Interval")
+    axis(side = 4, at = seq(0, 250, 50), labels = seq(0, 250, 50))
+    
+    plot(avg.steps.per.interval.weekdays,col = "blue" ,type = "l", ylim = c(0, 250), xlim = c(0, 
+        300), main = "weekday", ylab = "", xlab = "Interval")
+    par(mfrow = c(1, 1), mar = c(3, 2, 2, 2))
+    mtext(text = "Number of steps", side = 2)
+    par(mar = c(5, 5, 5, 2))
+}
+
+DoPlot()
+
+
+
+
+
